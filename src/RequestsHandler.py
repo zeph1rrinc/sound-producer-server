@@ -1,8 +1,7 @@
 import cgi
 from http.server import BaseHTTPRequestHandler
+from SpeakerRecognizer import SpeakerRecognizer
 from loguru import logger
-
-from utils import recognize
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -14,21 +13,24 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        if not pdict.get('boundary'):
+            return self.respond(status=500, response_text='boundary problem')
         pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
         content_len = int(self.headers.get('Content-length'))
         pdict['CONTENT-LENGTH'] = content_len
         if ctype == 'multipart/form-data':
             data = cgi.parse_multipart(self.rfile, pdict)
             nickname = data.get('nickname', [False])[0]
-            file = data.get('upload_file', [False])[0]
-            size = data.get('size', [False])[0]
-            if not all([nickname, file, size]):
-                logger.error("One of arguments is empty!")
-                return self.respond(status=400, response_text='nickname and upload_file expected')
-            rec_result = recognize(size, file, nickname)
-            if not rec_result:
-                return self.respond(status=400, response_text="Empty record!")
-        self.respond()
+            message = data.get('message', [False])[0]
+            if not all([nickname, message]):
+                logger.error(f"One of arguments is empty! - nickname: {nickname}, message: {message}")
+                return self.respond(status=400, response_text='nickname and message expected')
+            if "spk" in data:
+                speaker_recognizer = SpeakerRecognizer()
+                speaker = speaker_recognizer.recognize(data.get("spk"))
+            logger.debug(f"Received new message \"{message}\" from {nickname}")
+            logger.debug(f"Speaker - {speaker}")
+            self.respond(response_text=f"{nickname} - {message}")
 
     def handle_http(self, status, content_type, response_text):
         self.send_response(status)
