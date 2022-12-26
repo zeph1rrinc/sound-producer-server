@@ -31,7 +31,7 @@ class SpeakerRecognizer:
             if dist < max_dist:
                 max_dist = dist
                 result = speaker
-        return result
+        return f"{result} ({max_dist})"
 
     def add_speaker(self, speaker_file: str):
         with open(speaker_file) as file:
