@@ -21,7 +21,7 @@ if __name__ == "__main__":
     if len(argv) > 1:
         SpeakerRecognizer().add_speaker(argv[1])
         exit(0)
-    if not exists("../logs"):
-        makedirs("../logs")
-    logger.add(join("../logs", f"log_{datetime.today().strftime('%Y-%m-%d')}.log"), rotation="1 day")
+    if not exists("logs"):
+        makedirs("logs")
+    logger.add(join("logs", f"log_{datetime.today().strftime('%Y-%m-%d')}.log"), rotation="1 day")
     run()

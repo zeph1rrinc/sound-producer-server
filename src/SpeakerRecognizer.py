@@ -1,6 +1,8 @@
 import json
+import math
 import numpy as np
 
+from loguru import logger
 from os.path import join, dirname, abspath
 
 
@@ -28,10 +30,13 @@ class SpeakerRecognizer:
         for speaker in self.speakers.keys():
             spk = list(map(float, spk))
             dist = self.cosine_dist(self.speakers[speaker], spk)
+            speaker_probability = math.ceil((1 - dist) * 100)
+            logger.debug(f"[VARIANT] {speaker} - {speaker_probability}%")
             if dist < max_dist:
                 max_dist = dist
                 result = speaker
-        return f"{result} ({max_dist})"
+        probability = math.ceil((1 - max_dist) * 100)
+        return f"{result} ({math.ceil(probability)}%)"
 
     def add_speaker(self, speaker_file: str):
         with open(speaker_file) as file:

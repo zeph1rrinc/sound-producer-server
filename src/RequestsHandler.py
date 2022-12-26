@@ -25,11 +25,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             if not all([nickname, message]):
                 logger.error(f"One of arguments is empty! - nickname: {nickname}, message: {message}")
                 return self.respond(status=400, response_text='nickname and message expected')
+            logger.debug(f"Received new message \"{message}\" from {nickname}")
             if "spk" in data:
                 speaker_recognizer = SpeakerRecognizer()
                 speaker = speaker_recognizer.recognize(data.get("spk"))
-            logger.debug(f"Received new message \"{message}\" from {nickname}")
-            logger.debug(f"Speaker - {speaker}")
+                logger.debug(f"Speaker - {speaker}")
             self.respond(response_text=f"{nickname} - {message}")
 
     def handle_http(self, status, content_type, response_text):
