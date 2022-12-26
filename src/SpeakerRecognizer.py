@@ -27,7 +27,6 @@ class SpeakerRecognizer:
         result = 'Unrecognized'
         for speaker in self.speakers.keys():
             spk = list(map(float, spk))
-            print(speaker, spk, sep='\n')
             dist = self.cosine_dist(self.speakers[speaker], spk)
             if dist < max_dist:
                 max_dist = dist
